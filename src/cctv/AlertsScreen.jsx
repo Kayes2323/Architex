@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ScreenHeader } from "../components/TopHeader.jsx";
 import Card from "../components/Card.jsx";
+import EmptyState from "../components/EmptyState.jsx";
 import Sheet, { PrimaryButton } from "../components/Sheet.jsx";
 import { useFarm } from "../store/FarmStore.jsx";
 import { cameraById, bnClock } from "../data/cctvData.js";
@@ -26,6 +27,9 @@ export default function AlertsScreen({ onBack, onOpenCamera, onOpenRecording }) 
         <h2 className="text-sm font-bold" style={{ color: "#28241f" }}>
           আজকের ঘটনা
         </h2>
+        {sorted.length === 0 && (
+          <EmptyState icon="🔔" title="কোনো সতর্কতা নেই" subtitle="ক্যামেরায় কিছু শনাক্ত হলে এখানে দেখাবে" />
+        )}
         <div className="flex flex-col gap-2">
           {sorted.map((a) => {
             const cam = cameraById(cameras, a.cameraId);

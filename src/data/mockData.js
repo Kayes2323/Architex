@@ -29,187 +29,19 @@ export function purposeKind(purpose) {
 export const TODAY_ISO = "2026-09-12";
 
 export function seedTransactions() {
-  return [
-    { id: "t1", projectId: "cow", purpose: "গরু কেনা", amount: 250000, paidBy: "বাবা", paidTo: "গরুর বাজার", paid: true, date: "2026-07-02" },
-    { id: "t2", projectId: "cow", purpose: "খাবার", amount: 40000, paidBy: "বাবা", paidTo: "দোকান", paid: true, date: "2026-08-10" },
-    { id: "t3", projectId: "cow", purpose: "শ্রমিক", amount: 20000, paidBy: "চাচা", paidTo: "শ্রমিক", paid: true, date: "2026-08-15" },
-    { id: "t4", projectId: "cow", purpose: "অন্যান্য", amount: 10000, paidBy: "বাবা", paidTo: "দোকান", paid: true, date: "2026-08-20" },
-    { id: "t5", projectId: "construction", purpose: "নির্মাণসামগ্রী", amount: 120000, paidBy: "বাবা", paidTo: "মিস্ত্রি", paid: true, date: "2026-09-01" },
-    { id: "t6", projectId: "goat", purpose: "ছাগল কেনা", amount: 35000, paidBy: "চাচা", paidTo: "হাট", paid: true, date: "2026-06-18" },
-    { id: "t7", projectId: "goat", purpose: "খাবার", amount: 8000, paidBy: "মা", paidTo: "দোকান", paid: true, date: "2026-08-22" },
-    { id: "t8", projectId: "fish", purpose: "পোনা কেনা", amount: 15000, paidBy: "ভাই", paidTo: "মৎস্য খামার", paid: true, date: "2026-07-25" },
-    { id: "t9", projectId: "poultry", purpose: "মুরগি কেনা", amount: 12000, paidBy: "আমি", paidTo: "হাট", paid: true, date: "2026-08-05" },
-    { id: "t10", projectId: "cow", purpose: "খাবার", amount: 3000, paidBy: "বাবা", paidTo: "দোকান", paid: true, date: "2026-09-11" },
-    { id: "t11", projectId: "construction", purpose: "শ্রমিক", amount: 5000, paidBy: "বাবা", paidTo: "শ্রমিক", paid: false, date: TODAY_ISO },
-    { id: "t12", projectId: "cow", purpose: "খাবার", amount: 2850, paidBy: "বাবা", paidTo: "দোকান", paid: true, date: TODAY_ISO },
-  ];
+  return [];
 }
 
 export function seedWorks() {
-  return [
-    {
-      id: "w1",
-      title: "গরুর শেড নির্মাণ",
-      icon: "🐄",
-      projectId: "construction",
-      status: "running",
-      progress: 60,
-      totalBudget: 200000,
-      spent: 120000,
-      responsible: "বাবা",
-      deadline: "২০ সেপ্টেম্বর",
-      checklist: [
-        { name: "Foundation", status: "done" },
-        { name: "Pillar", status: "done" },
-        { name: "Roof", status: "running" },
-        { name: "Drainage", status: "pending" },
-      ],
-    },
-    {
-      id: "w2",
-      title: "পুকুরের চারপাশে বেড়া দেওয়া",
-      icon: "🐟",
-      projectId: "fish",
-      status: "running",
-      progress: 30,
-      totalBudget: 25000,
-      spent: 8000,
-      responsible: "ভাই",
-      deadline: "৫ অক্টোবর",
-      checklist: [
-        { name: "খুঁটি বসানো", status: "done" },
-        { name: "নেট কেনা", status: "running" },
-        { name: "নেট লাগানো", status: "pending" },
-      ],
-    },
-    {
-      id: "w3",
-      title: "ছাগলের ঘরে নতুন চাল দেওয়া",
-      icon: "🐐",
-      projectId: "goat",
-      status: "problem",
-      progress: 45,
-      totalBudget: 18000,
-      spent: 9500,
-      responsible: "চাচা",
-      deadline: "১৫ সেপ্টেম্বর",
-      checklist: [
-        { name: "পুরনো চাল খোলা", status: "done" },
-        { name: "নতুন টিন কেনা", status: "problem" },
-        { name: "নতুন চাল লাগানো", status: "pending" },
-      ],
-    },
-    {
-      id: "w4",
-      title: "মুরগির খামার পরিষ্কার",
-      icon: "🐔",
-      projectId: "poultry",
-      status: "done",
-      progress: 100,
-      totalBudget: 3000,
-      spent: 2800,
-      responsible: "আমি",
-      deadline: "৮ সেপ্টেম্বর",
-      checklist: [
-        { name: "খামার খালি করা", status: "done" },
-        { name: "ধোয়ামোছা", status: "done" },
-        { name: "জীবাণুনাশক স্প্রে", status: "done" },
-      ],
-    },
-    {
-      id: "w5",
-      title: "বাগানে নতুন ফলের চারা রোপণ",
-      icon: "🌳",
-      projectId: "garden",
-      status: "pending",
-      progress: 0,
-      totalBudget: 6000,
-      spent: 0,
-      responsible: "মা",
-      deadline: "১ অক্টোবর",
-      checklist: [
-        { name: "চারা কেনা", status: "pending" },
-        { name: "গর্ত খোঁড়া", status: "pending" },
-        { name: "রোপণ", status: "pending" },
-      ],
-    },
-    {
-      id: "w6",
-      title: "গোয়ালঘরের বিদ্যুৎ সংযোগ",
-      icon: "🐄",
-      projectId: "construction",
-      status: "running",
-      progress: 20,
-      totalBudget: 15000,
-      spent: 3000,
-      responsible: "ভাই",
-      deadline: "২৫ সেপ্টেম্বর",
-      checklist: [
-        { name: "মিটার আবেদন", status: "done" },
-        { name: "তার টানা", status: "running" },
-        { name: "লাইট-ফ্যান লাগানো", status: "pending" },
-      ],
-    },
-    {
-      id: "w7",
-      title: "গরুর ঘাস কাটা ও পরিষ্কার",
-      icon: "🐄",
-      projectId: "cow",
-      status: "done",
-      progress: 100,
-      totalBudget: 1500,
-      spent: 1500,
-      responsible: "আমি",
-      deadline: "১১ সেপ্টেম্বর",
-      checklist: [
-        { name: "ঘাস কাটা", status: "done" },
-        { name: "গোয়ালঘর পরিষ্কার", status: "done" },
-      ],
-    },
-  ];
+  return [];
 }
 
 export function seedPlans() {
-  return [
-    {
-      id: "p1",
-      author: "বাবা",
-      createdAt: "2026-09-10T10:00:00Z",
-      text: "আগামী মাসে আরও ৫টি গরু কেনা যেতে পারে।",
-      comments: [
-        { id: "c1", author: "চাচা", text: "আগে শেডটা সম্পূর্ণ করা দরকার।", createdAt: "2026-09-10T11:05:00Z" },
-        { id: "c2", author: "আমি", text: "ঠিক আছে, শেড শেষ হলে গরু কেনার পরিকল্পনা করা যাবে।", createdAt: "2026-09-10T11:20:00Z" },
-      ],
-      convertedToWorkId: null,
-    },
-    {
-      id: "p2",
-      author: "চাচা",
-      createdAt: "2026-09-05T09:00:00Z",
-      text: "পুকুরে নতুন করে মাছের পোনা ছাড়া দরকার, পানি পরীক্ষা করে।",
-      comments: [
-        { id: "c3", author: "ভাই", text: "পানি পরীক্ষা এই সপ্তাহে করে ফেলব।", createdAt: "2026-09-05T12:00:00Z" },
-      ],
-      convertedToWorkId: null,
-    },
-    {
-      id: "p3",
-      author: "মা",
-      createdAt: "2026-08-28T08:30:00Z",
-      text: "বাগানে কিছু ফলের গাছ লাগানো দরকার — আম, লেবু, পেয়ারা।",
-      comments: [],
-      convertedToWorkId: "w5",
-    },
-  ];
+  return [];
 }
 
 export function seedTodayUpdates() {
-  return [
-    { id: "u1", text: "আজ গরুর শেডের ছাদের কাজ ২০% এগিয়েছে।", time: "সকাল ১০:৩০", author: "বাবা" },
-    { id: "u2", text: "আজ ৳৩,০০০ টাকার গরুর খাবার কেনা হয়েছে।", time: "দুপুর ১২:১৫", author: "বাবা" },
-    { id: "u3", text: "আজ পুকুরের পানি পরীক্ষা করা হয়েছে।", time: "বিকাল ৪:০০", author: "ভাই" },
-    { id: "u4", text: "ছাগলের ঘরের টিন কিনতে সমস্যা হচ্ছে — বাজারে পাওয়া যাচ্ছে না।", time: "বিকাল ৫:২০", author: "চাচা" },
-  ];
+  return [];
 }
 
 const bnDigits = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];

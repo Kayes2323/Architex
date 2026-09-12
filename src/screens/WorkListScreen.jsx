@@ -3,6 +3,7 @@ import { ScreenHeader } from "../components/TopHeader.jsx";
 import Card from "../components/Card.jsx";
 import ProgressBar from "../components/ProgressBar.jsx";
 import StatusBadge from "../components/StatusBadge.jsx";
+import EmptyState from "../components/EmptyState.jsx";
 import { useFarm } from "../store/FarmStore.jsx";
 import { formatTaka, projectById } from "../data/mockData.js";
 
@@ -25,6 +26,13 @@ export default function WorkListScreen({ onOpenWork }) {
     <div className="pb-24">
       <ScreenHeader title="🛠️ কাজ" />
       <div className="px-4 pt-4 flex flex-col gap-5">
+        {works.length === 0 && (
+          <EmptyState
+            icon="🛠️"
+            title="এখনো কোনো কাজ যোগ করা হয়নি"
+            subtitle="📋 পরিকল্পনা থেকে কোনো আইডিয়াকে কাজ হিসেবে শুরু করুন"
+          />
+        )}
         {GROUPS.map((g) => {
           const items = grouped[g.key];
           if (!items || items.length === 0) return null;

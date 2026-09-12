@@ -53,7 +53,7 @@ export default function HomeScreen({ onOpenNewUpdate, onGoToHisab, onQuickAddPla
             </div>
           </Card>
 
-          {todayUpdates.length > 0 && (
+          {todayUpdates.length > 0 ? (
             <div className="mt-2 flex flex-col gap-2">
               {todayUpdates.slice(0, 4).map((u) => (
                 <div key={u.id} className="flex gap-2 rounded-xl bg-white px-3 py-2.5 shadow-card">
@@ -69,6 +69,10 @@ export default function HomeScreen({ onOpenNewUpdate, onGoToHisab, onQuickAddPla
                 </div>
               ))}
             </div>
+          ) : (
+            <p className="mt-2 text-center text-xs" style={{ color: "#867a65" }}>
+              আজ এখনো কোনো আপডেট দেওয়া হয়নি — উপরের বাটনে চাপুন
+            </p>
           )}
         </section>
 

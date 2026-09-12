@@ -80,6 +80,11 @@ export default function DashboardScreen({ onExit, onOpenCamera, onOpenAlerts, on
             </button>
           </div>
           <div className="flex flex-col gap-2">
+            {recentAlerts.length === 0 && (
+              <p className="text-center text-xs" style={{ color: "#867a65" }}>
+                কোনো নতুন সতর্কতা নেই
+              </p>
+            )}
             {recentAlerts.map((a) => {
               const cam = cameras.find((c) => c.id === a.cameraId);
               const critical = a.severity === "critical";

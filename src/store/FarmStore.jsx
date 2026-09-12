@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { seedTransactions, seedWorks, seedPlans, seedTodayUpdates, collectKnownUsers } from "../data/mockData.js";
 import { seedCameras, seedCctvAlerts } from "../data/cctvData.js";
 
-const STORAGE_KEY = "nazir-agro-farm-app-v3";
+const STORAGE_KEY = "nazir-agro-farm-app-v4";
 
 function loadInitial() {
   try {

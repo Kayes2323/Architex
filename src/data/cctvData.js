@@ -64,38 +64,7 @@ export function seedCameras() {
 }
 
 export function seedCctvAlerts() {
-  return [
-    {
-      id: "al1",
-      cameraId: "gate",
-      bnTitle: "গতিবিধি শনাক্ত হয়েছে",
-      type: "movement",
-      severity: "critical",
-      dateLabel: "আজ",
-      time: { h: 2, m: 17 },
-      status: "new",
-    },
-    {
-      id: "al2",
-      cameraId: "cow",
-      bnTitle: "অস্বাভাবিক কার্যকলাপ",
-      type: "unusual",
-      severity: "warning",
-      dateLabel: "আজ",
-      time: { h: 3, m: 5 },
-      status: "new",
-    },
-    {
-      id: "al3",
-      cameraId: "pond",
-      bnTitle: "ক্যামেরার সংযোগ বিচ্ছিন্ন হয়েছে",
-      type: "disconnected",
-      severity: "critical",
-      dateLabel: "আজ",
-      time: { h: 6, m: 42 },
-      status: "viewed",
-    },
-  ];
+  return [];
 }
 
 export const RECORDING_DATES = [
