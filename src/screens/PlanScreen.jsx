@@ -3,14 +3,14 @@ import { ScreenHeader } from "../components/TopHeader.jsx";
 import Card from "../components/Card.jsx";
 import Avatar from "../components/Avatar.jsx";
 import EmptyState from "../components/EmptyState.jsx";
-import { ChipSelect, inputClass, inputStyle } from "../components/Sheet.jsx";
+import Sheet, { Field, inputClass, inputStyle, PrimaryButton } from "../components/Sheet.jsx";
 import { useFarm } from "../store/FarmStore.jsx";
-import { FAMILY_MEMBERS, relativeBnTime } from "../data/mockData.js";
+import { relativeBnTime } from "../data/mockData.js";
 
 export default function PlanScreen({ onNewPlan, onOpen3D, onOpenWork, onConvertToWork }) {
   const { plans, currentUser, setCurrentUser, addComment } = useFarm();
   const [query, setQuery] = useState("");
-  const [switchingUser, setSwitchingUser] = useState(false);
+  const [renaming, setRenaming] = useState(false);
 
   const sorted = useMemo(
     () => [...plans].sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1)),
@@ -31,7 +31,7 @@ export default function PlanScreen({ onNewPlan, onOpen3D, onOpenWork, onConvertT
         title="📋 পরিকল্পনা ও আলোচনা"
         right={
           <button
-            onClick={() => setSwitchingUser((v) => !v)}
+            onClick={() => setRenaming(true)}
             className="flex items-center gap-1.5 rounded-full border px-2 py-1 active:scale-95 transition-transform"
             style={{ borderColor: "#dedad2" }}
           >
@@ -43,20 +43,8 @@ export default function PlanScreen({ onNewPlan, onOpen3D, onOpenWork, onConvertT
         }
       />
 
-      {switchingUser && (
-        <div className="border-b bg-white px-4 py-3" style={{ borderColor: "#eeece8" }}>
-          <div className="mb-1.5 text-xs font-semibold" style={{ color: "#867a65" }}>
-            আপনি এখন কে হিসেবে আছেন?
-          </div>
-          <ChipSelect
-            options={FAMILY_MEMBERS}
-            value={currentUser}
-            onChange={(v) => {
-              setCurrentUser(v);
-              setSwitchingUser(false);
-            }}
-          />
-        </div>
+      {renaming && (
+        <RenameSheet currentUser={currentUser} onSave={setCurrentUser} onClose={() => setRenaming(false)} />
       )}
 
       <div className="px-4 pt-4 flex flex-col gap-4">
@@ -110,6 +98,36 @@ export default function PlanScreen({ onNewPlan, onOpen3D, onOpenWork, onConvertT
         )}
       </div>
     </div>
+  );
+}
+
+function RenameSheet({ currentUser, onSave, onClose }) {
+  const [name, setName] = useState(currentUser);
+  const save = () => {
+    if (!name.trim()) return;
+    onSave(name.trim());
+    onClose();
+  };
+  return (
+    <Sheet
+      title="👤 আপনার নাম"
+      onClose={onClose}
+      footer={
+        <PrimaryButton onClick={save} disabled={!name.trim()}>
+          সেভ করুন
+        </PrimaryButton>
+      }
+    >
+      <Field label="নাম">
+        <input
+          autoFocus
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className={inputClass}
+          style={inputStyle}
+        />
+      </Field>
+    </Sheet>
   );
 }
 

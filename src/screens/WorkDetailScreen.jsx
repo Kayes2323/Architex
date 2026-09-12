@@ -4,13 +4,14 @@ import Card from "../components/Card.jsx";
 import ProgressBar from "../components/ProgressBar.jsx";
 import StatusBadge from "../components/StatusBadge.jsx";
 import { ChipSelect } from "../components/Sheet.jsx";
+import PersonPicker from "../components/PersonPicker.jsx";
 import { useFarm } from "../store/FarmStore.jsx";
-import { STATUS, FAMILY_MEMBERS, formatTaka, projectById, toBnNumerals } from "../data/mockData.js";
+import { STATUS, formatTaka, projectById, toBnNumerals } from "../data/mockData.js";
 
 const CHECK_CYCLE = ["pending", "running", "done", "problem"];
 
 export default function WorkDetailScreen({ workId, onBack }) {
-  const { works, updateWorkProgress } = useFarm();
+  const { works, knownUsers, updateWorkProgress } = useFarm();
   const work = works.find((w) => w.id === workId);
   const [editingResponsible, setEditingResponsible] = useState(false);
 
@@ -130,8 +131,8 @@ export default function WorkDetailScreen({ workId, onBack }) {
             </button>
           </div>
           {editingResponsible ? (
-            <ChipSelect
-              options={FAMILY_MEMBERS}
+            <PersonPicker
+              people={knownUsers}
               value={work.responsible}
               onChange={(v) => updateWorkProgress(work.id, { responsible: v })}
             />

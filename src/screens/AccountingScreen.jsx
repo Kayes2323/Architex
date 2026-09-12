@@ -3,7 +3,7 @@ import Card from "../components/Card.jsx";
 import { useFarm } from "../store/FarmStore.jsx";
 import { PROJECT_TYPES, computeFinancialSummary, projectTotal, formatTaka } from "../data/mockData.js";
 
-export default function AccountingScreen({ onOpenProject, onAddExpense }) {
+export default function AccountingScreen({ onOpenProject }) {
   const { transactions } = useFarm();
   const summary = computeFinancialSummary(transactions);
 
@@ -62,15 +62,11 @@ export default function AccountingScreen({ onOpenProject, onAddExpense }) {
             })}
           </div>
         </section>
-      </div>
 
-      <button
-        onClick={onAddExpense}
-        className="fixed bottom-20 right-4 z-30 flex items-center gap-2 rounded-full px-5 py-3.5 text-sm font-bold text-white shadow-pop active:scale-95 transition-transform"
-        style={{ background: "#2f7d35" }}
-      >
-        <span className="text-lg leading-none">➕</span> নতুন হিসাব
-      </button>
+        <p className="text-center text-xs" style={{ color: "#867a65" }}>
+          হিসাব যোগ করতে উপরের যেকোনো প্রজেক্টে ঢুকুন 👆
+        </p>
+      </div>
     </div>
   );
 }

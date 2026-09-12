@@ -1,7 +1,5 @@
 // প্রোটোটাইপের জন্য নমুনা ডেটা — পরবর্তীতে backend/database দিয়ে replace হবে।
 
-export const FAMILY_MEMBERS = ["বাবা", "চাচা", "মা", "ভাই", "আমি"];
-
 export const STATUS = {
   running: { key: "running", label: "চলছে", dot: "🟢", classes: "bg-brand-50 text-brand-700 border-brand-200" },
   pending: { key: "pending", label: "অপেক্ষমাণ", dot: "🟡", classes: "bg-warn-50 text-warn-500 border-warn-200" },
@@ -291,4 +289,23 @@ export function projectTotal(transactions, projectId) {
 
 export function projectById(id) {
   return PROJECT_TYPES.find((p) => p.id === id) || PROJECT_TYPES[PROJECT_TYPES.length - 1];
+}
+
+// কোনো hardcoded "বাবা/চাচা" লিস্ট নেই — যারা লগ ইন করেছে বা যাদের নাম কোথাও
+// ব্যবহার হয়েছে (হিসাব, কাজ, পরিকল্পনা), তাদের নাম থেকেই এই লিস্ট তৈরি হয়।
+export function collectKnownUsers({ currentUser, transactions = [], works = [], plans = [], todayUpdates = [] }) {
+  const names = [];
+  const add = (n) => {
+    const trimmed = (n || "").trim();
+    if (trimmed && !names.includes(trimmed)) names.push(trimmed);
+  };
+  add(currentUser);
+  transactions.forEach((t) => add(t.paidBy));
+  works.forEach((w) => add(w.responsible));
+  plans.forEach((p) => {
+    add(p.author);
+    (p.comments || []).forEach((c) => add(c.author));
+  });
+  todayUpdates.forEach((u) => add(u.author));
+  return names;
 }

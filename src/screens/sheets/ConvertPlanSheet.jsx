@@ -1,17 +1,18 @@
 import { useState } from "react";
 import Sheet, { Field, inputClass, inputStyle, ChipSelect, PrimaryButton } from "../../components/Sheet.jsx";
+import PersonPicker from "../../components/PersonPicker.jsx";
 import { useFarm } from "../../store/FarmStore.jsx";
-import { PROJECT_TYPES, FAMILY_MEMBERS } from "../../data/mockData.js";
+import { PROJECT_TYPES } from "../../data/mockData.js";
 
 export default function ConvertPlanSheet({ plan, onClose, onSaved }) {
-  const { convertPlanToWork } = useFarm();
+  const { currentUser, knownUsers, convertPlanToWork } = useFarm();
   const [title, setTitle] = useState(plan.text);
   const [projectId, setProjectId] = useState(PROJECT_TYPES[0].id);
   const [budget, setBudget] = useState("");
-  const [responsible, setResponsible] = useState(FAMILY_MEMBERS[0]);
+  const [responsible, setResponsible] = useState(currentUser);
   const [deadline, setDeadline] = useState("");
 
-  const canSave = title.trim().length > 0;
+  const canSave = title.trim().length > 0 && responsible.trim().length > 0;
 
   const save = () => {
     if (!canSave) return;
@@ -24,7 +25,7 @@ export default function ConvertPlanSheet({ plan, onClose, onSaved }) {
       progress: 0,
       totalBudget: Number(budget) || 0,
       spent: 0,
-      responsible,
+      responsible: responsible.trim(),
       deadline: deadline.trim() || "নির্ধারিত নয়",
       checklist: [{ name: "কাজ শুরু করা", status: "pending" }],
     });
@@ -73,7 +74,7 @@ export default function ConvertPlanSheet({ plan, onClose, onSaved }) {
       </Field>
 
       <Field label="দায়িত্বে কে থাকবে?">
-        <ChipSelect options={FAMILY_MEMBERS} value={responsible} onChange={setResponsible} />
+        <PersonPicker people={knownUsers} value={responsible} onChange={setResponsible} />
       </Field>
 
       <Field label="সম্ভাব্য শেষের তারিখ (ঐচ্ছিক)">

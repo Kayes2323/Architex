@@ -1,18 +1,19 @@
 import { useState } from "react";
 import Sheet, { Field, inputClass, inputStyle, ChipSelect, PrimaryButton } from "../../components/Sheet.jsx";
+import PersonPicker from "../../components/PersonPicker.jsx";
 import { useFarm } from "../../store/FarmStore.jsx";
-import { PROJECT_TYPES, EXPENSE_PURPOSES, FAMILY_MEMBERS, TODAY_ISO } from "../../data/mockData.js";
+import { EXPENSE_PURPOSES, TODAY_ISO, projectById } from "../../data/mockData.js";
 
-export default function NewExpenseSheet({ defaultProjectId, onClose, onSaved }) {
-  const { addTransaction } = useFarm();
+export default function NewExpenseSheet({ projectId, onClose, onSaved }) {
+  const { currentUser, knownUsers, addTransaction } = useFarm();
+  const project = projectById(projectId);
   const [purpose, setPurpose] = useState(EXPENSE_PURPOSES[0]);
-  const [projectId, setProjectId] = useState(defaultProjectId || PROJECT_TYPES[0].id);
   const [amount, setAmount] = useState("");
-  const [paidBy, setPaidBy] = useState(FAMILY_MEMBERS[0]);
+  const [paidBy, setPaidBy] = useState(currentUser);
   const [paidTo, setPaidTo] = useState("");
   const [paid, setPaid] = useState(true);
 
-  const canSave = Number(amount) > 0 && paidTo.trim().length > 0;
+  const canSave = Number(amount) > 0 && paidTo.trim().length > 0 && paidBy.trim().length > 0;
 
   const save = () => {
     if (!canSave) return;
@@ -20,7 +21,7 @@ export default function NewExpenseSheet({ defaultProjectId, onClose, onSaved }) 
       projectId,
       purpose,
       amount: Number(amount),
-      paidBy,
+      paidBy: paidBy.trim(),
       paidTo: paidTo.trim(),
       paid,
       date: TODAY_ISO,
@@ -31,7 +32,7 @@ export default function NewExpenseSheet({ defaultProjectId, onClose, onSaved }) 
 
   return (
     <Sheet
-      title="➕ নতুন হিসাব"
+      title={`➕ নতুন হিসাব — ${project.icon} ${project.name}`}
       onClose={onClose}
       footer={
         <PrimaryButton onClick={save} disabled={!canSave}>
@@ -39,21 +40,11 @@ export default function NewExpenseSheet({ defaultProjectId, onClose, onSaved }) 
         </PrimaryButton>
       }
     >
-      <Field label="কী জন্য?">
+      <Field label="কেন খরচ হয়েছে?">
         <ChipSelect options={EXPENSE_PURPOSES} value={purpose} onChange={setPurpose} />
       </Field>
 
-      <Field label="কোন প্রজেক্ট?">
-        <ChipSelect
-          options={PROJECT_TYPES}
-          value={projectId}
-          onChange={setProjectId}
-          getKey={(o) => o.id}
-          getLabel={(o) => `${o.icon} ${o.name}`}
-        />
-      </Field>
-
-      <Field label="কত টাকা?">
+      <Field label="কত টাকা খরচ হয়েছে?">
         <input
           type="number"
           inputMode="numeric"
@@ -66,7 +57,7 @@ export default function NewExpenseSheet({ defaultProjectId, onClose, onSaved }) 
       </Field>
 
       <Field label="কে টাকা দিয়েছে?">
-        <ChipSelect options={FAMILY_MEMBERS} value={paidBy} onChange={setPaidBy} />
+        <PersonPicker people={knownUsers} value={paidBy} onChange={setPaidBy} />
       </Field>
 
       <Field label="কাকে দেওয়া হয়েছে?">

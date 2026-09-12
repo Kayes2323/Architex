@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { FarmStoreProvider } from "./store/FarmStore.jsx";
+import { FarmStoreProvider, useFarm } from "./store/FarmStore.jsx";
 import BottomNav from "./components/BottomNav.jsx";
 
+import LoginScreen from "./screens/LoginScreen.jsx";
 import HomeScreen from "./screens/HomeScreen.jsx";
 import AccountingScreen from "./screens/AccountingScreen.jsx";
 import ProjectDetailScreen from "./screens/ProjectDetailScreen.jsx";
@@ -24,11 +25,14 @@ export default function App() {
 }
 
 function AppShell() {
+  const { currentUser } = useFarm();
   const [activeTab, setActiveTab] = useState("home");
   const [selectedWorkId, setSelectedWorkId] = useState(null);
   const [selectedProjectId, setSelectedProjectId] = useState(null);
   const [show3D, setShow3D] = useState(false);
   const [sheet, setSheet] = useState(null); // { type, ...params }
+
+  if (!currentUser) return <LoginScreen />;
 
   const switchTab = (tab) => {
     setActiveTab(tab);
@@ -49,9 +53,8 @@ function AppShell() {
       <div className="mx-auto min-h-full max-w-md" style={{ background: "#f2f6f1" }}>
         {activeTab === "home" && (
           <HomeScreen
-            onOpenWork={openWork}
             onOpenNewUpdate={() => setSheet({ type: "newUpdate" })}
-            onQuickAddExpense={() => setSheet({ type: "newExpense" })}
+            onGoToHisab={() => switchTab("hisab")}
             onQuickAddPlan={() => setSheet({ type: "newPlan" })}
           />
         )}
@@ -64,10 +67,7 @@ function AppShell() {
               onAddExpense={(projectId) => setSheet({ type: "newExpense", projectId })}
             />
           ) : (
-            <AccountingScreen
-              onOpenProject={setSelectedProjectId}
-              onAddExpense={() => setSheet({ type: "newExpense" })}
-            />
+            <AccountingScreen onOpenProject={setSelectedProjectId} />
           ))}
 
         {activeTab === "kaj" &&
@@ -92,7 +92,7 @@ function AppShell() {
         <BottomNav active={activeTab} onChange={switchTab} />
 
         {sheet && sheet.type === "newExpense" && (
-          <NewExpenseSheet defaultProjectId={sheet.projectId} onClose={closeSheet} />
+          <NewExpenseSheet projectId={sheet.projectId} onClose={closeSheet} />
         )}
         {sheet && sheet.type === "newPlan" && <NewPlanSheet onClose={closeSheet} />}
         {sheet && sheet.type === "newUpdate" && <NewUpdateSheet onClose={closeSheet} />}

@@ -1,14 +1,11 @@
 import { AppHeader } from "../components/TopHeader.jsx";
 import Card from "../components/Card.jsx";
-import ProgressBar from "../components/ProgressBar.jsx";
-import StatusBadge from "../components/StatusBadge.jsx";
 import { useFarm } from "../store/FarmStore.jsx";
 import { computeTodaySummary, formatTaka, bnDate, toBnNumerals, TODAY_ISO } from "../data/mockData.js";
 
-export default function HomeScreen({ onOpenWork, onOpenNewUpdate, onQuickAddExpense, onQuickAddPlan }) {
+export default function HomeScreen({ onOpenNewUpdate, onGoToHisab, onQuickAddPlan }) {
   const { transactions, works, todayUpdates } = useFarm();
   const summary = computeTodaySummary(transactions, works);
-  const activeWorks = works.filter((w) => w.status === "running" || w.status === "problem");
 
   return (
     <div className="pb-24">
@@ -67,43 +64,10 @@ export default function HomeScreen({ onOpenWork, onOpenNewUpdate, onQuickAddExpe
 
         <section>
           <h2 className="mb-2 text-sm font-bold" style={{ color: "#28241f" }}>
-            🛠️ এখন কী কাজ চলছে?
-          </h2>
-          <div className="flex flex-col gap-3">
-            {activeWorks.length === 0 && (
-              <Card>
-                <p className="text-sm" style={{ color: "#867a65" }}>
-                  এখন কোনো কাজ চলছে না।
-                </p>
-              </Card>
-            )}
-            {activeWorks.map((w) => (
-              <Card key={w.id} onClick={() => onOpenWork(w.id)} tone={w.status === "problem" ? "alert" : "default"}>
-                <div className="mb-2 flex items-start justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xl leading-none">{w.icon}</span>
-                    <span className="text-sm font-bold" style={{ color: "#28241f" }}>
-                      {w.title}
-                    </span>
-                  </div>
-                  <StatusBadge status={w.status} size="sm" />
-                </div>
-                <ProgressBar percent={w.progress} tone={w.status === "problem" ? "alert" : "brand"} />
-                <div className="mt-2 flex items-center justify-between text-xs" style={{ color: "#6b6151" }}>
-                  <span>💰 এখন পর্যন্ত খরচ: {formatTaka(w.spent)}</span>
-                  <span>📅 {w.deadline}</span>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </section>
-
-        <section>
-          <h2 className="mb-2 text-sm font-bold" style={{ color: "#28241f" }}>
             দ্রুত অ্যাকশন
           </h2>
           <div className="grid grid-cols-2 gap-3">
-            <QuickAction icon="💰" label="টাকা খরচ হয়েছে?" sub="হিসাব দিন" onClick={onQuickAddExpense} />
+            <QuickAction icon="💰" label="টাকা খরচ হয়েছে?" sub="হিসাব দিন" onClick={onGoToHisab} />
             <QuickAction icon="📋" label="নতুন আইডিয়া আছে?" sub="পরিকল্পনা দিন" onClick={onQuickAddPlan} />
           </div>
         </section>

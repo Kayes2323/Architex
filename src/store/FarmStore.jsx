@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { seedTransactions, seedWorks, seedPlans, seedTodayUpdates } from "../data/mockData.js";
+import { seedTransactions, seedWorks, seedPlans, seedTodayUpdates, collectKnownUsers } from "../data/mockData.js";
 
-const STORAGE_KEY = "nazir-agro-farm-app-v1";
+const STORAGE_KEY = "nazir-agro-farm-app-v2";
 
 function loadInitial() {
   try {
@@ -9,14 +9,14 @@ function loadInitial() {
     if (raw) {
       const data = JSON.parse(raw);
       if (data && data.transactions && data.works && data.plans && data.todayUpdates) {
-        return { currentUser: "আমি", ...data };
+        return { currentUser: null, ...data };
       }
     }
   } catch (err) {
     /* ignore, fall back to seed data */
   }
   return {
-    currentUser: "আমি",
+    currentUser: null,
     transactions: seedTransactions(),
     works: seedWorks(),
     plans: seedPlans(),
@@ -45,7 +45,8 @@ export function FarmStoreProvider({ children }) {
 
   const actions = useMemo(
     () => ({
-      setCurrentUser: (name) => setState((s) => ({ ...s, currentUser: name })),
+      login: (name) => setState((s) => ({ ...s, currentUser: name.trim() })),
+      setCurrentUser: (name) => setState((s) => ({ ...s, currentUser: name.trim() })),
       addTransaction: (tx) =>
         setState((s) => ({ ...s, transactions: [{ ...tx, id: newId("t") }, ...s.transactions] })),
       addPlan: (plan) =>
@@ -80,7 +81,8 @@ export function FarmStoreProvider({ children }) {
     []
   );
 
-  const value = useMemo(() => ({ ...state, ...actions }), [state, actions]);
+  const knownUsers = useMemo(() => collectKnownUsers(state), [state]);
+  const value = useMemo(() => ({ ...state, knownUsers, ...actions }), [state, knownUsers, actions]);
 
   return <FarmContext.Provider value={value}>{children}</FarmContext.Provider>;
 }
