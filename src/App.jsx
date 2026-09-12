@@ -10,6 +10,7 @@ import WorkListScreen from "./screens/WorkListScreen.jsx";
 import WorkDetailScreen from "./screens/WorkDetailScreen.jsx";
 import PlanScreen from "./screens/PlanScreen.jsx";
 import Farm3DScreen from "./screens/Farm3DScreen.jsx";
+import CCTVModule from "./cctv/CCTVModule.jsx";
 
 import NewExpenseSheet from "./screens/sheets/NewExpenseSheet.jsx";
 import NewPlanSheet from "./screens/sheets/NewPlanSheet.jsx";
@@ -30,6 +31,7 @@ function AppShell() {
   const [selectedWorkId, setSelectedWorkId] = useState(null);
   const [selectedProjectId, setSelectedProjectId] = useState(null);
   const [show3D, setShow3D] = useState(false);
+  const [showCCTV, setShowCCTV] = useState(false);
   const [sheet, setSheet] = useState(null); // { type, ...params }
 
   if (!currentUser) return <LoginScreen />;
@@ -39,6 +41,7 @@ function AppShell() {
     setSelectedWorkId(null);
     setSelectedProjectId(null);
     setShow3D(false);
+    setShowCCTV(false);
   };
 
   const openWork = (workId) => {
@@ -51,43 +54,50 @@ function AppShell() {
   return (
     <div style={{ background: "#f2f6f1", minHeight: "100%" }}>
       <div className="mx-auto min-h-full max-w-md" style={{ background: "#f2f6f1" }}>
-        {activeTab === "home" && (
-          <HomeScreen
-            onOpenNewUpdate={() => setSheet({ type: "newUpdate" })}
-            onGoToHisab={() => switchTab("hisab")}
-            onQuickAddPlan={() => setSheet({ type: "newPlan" })}
-          />
+        {showCCTV ? (
+          <CCTVModule onExit={() => setShowCCTV(false)} />
+        ) : (
+          <>
+            {activeTab === "home" && (
+              <HomeScreen
+                onOpenNewUpdate={() => setSheet({ type: "newUpdate" })}
+                onGoToHisab={() => switchTab("hisab")}
+                onQuickAddPlan={() => setSheet({ type: "newPlan" })}
+                onOpenCCTV={() => setShowCCTV(true)}
+              />
+            )}
+
+            {activeTab === "hisab" &&
+              (selectedProjectId ? (
+                <ProjectDetailScreen
+                  projectId={selectedProjectId}
+                  onBack={() => setSelectedProjectId(null)}
+                  onAddExpense={(projectId) => setSheet({ type: "newExpense", projectId })}
+                />
+              ) : (
+                <AccountingScreen onOpenProject={setSelectedProjectId} />
+              ))}
+
+            {activeTab === "kaj" &&
+              (selectedWorkId ? (
+                <WorkDetailScreen workId={selectedWorkId} onBack={() => setSelectedWorkId(null)} />
+              ) : (
+                <WorkListScreen onOpenWork={setSelectedWorkId} />
+              ))}
+
+            {activeTab === "plan" &&
+              (show3D ? (
+                <Farm3DScreen onBack={() => setShow3D(false)} onOpenCCTV={() => setShowCCTV(true)} />
+              ) : (
+                <PlanScreen
+                  onNewPlan={() => setSheet({ type: "newPlan" })}
+                  onOpen3D={() => setShow3D(true)}
+                  onOpenWork={openWork}
+                  onConvertToWork={(plan) => setSheet({ type: "convertPlan", plan })}
+                />
+              ))}
+          </>
         )}
-
-        {activeTab === "hisab" &&
-          (selectedProjectId ? (
-            <ProjectDetailScreen
-              projectId={selectedProjectId}
-              onBack={() => setSelectedProjectId(null)}
-              onAddExpense={(projectId) => setSheet({ type: "newExpense", projectId })}
-            />
-          ) : (
-            <AccountingScreen onOpenProject={setSelectedProjectId} />
-          ))}
-
-        {activeTab === "kaj" &&
-          (selectedWorkId ? (
-            <WorkDetailScreen workId={selectedWorkId} onBack={() => setSelectedWorkId(null)} />
-          ) : (
-            <WorkListScreen onOpenWork={setSelectedWorkId} />
-          ))}
-
-        {activeTab === "plan" &&
-          (show3D ? (
-            <Farm3DScreen onBack={() => setShow3D(false)} />
-          ) : (
-            <PlanScreen
-              onNewPlan={() => setSheet({ type: "newPlan" })}
-              onOpen3D={() => setShow3D(true)}
-              onOpenWork={openWork}
-              onConvertToWork={(plan) => setSheet({ type: "convertPlan", plan })}
-            />
-          ))}
 
         <BottomNav active={activeTab} onChange={switchTab} />
 

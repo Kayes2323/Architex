@@ -1,7 +1,8 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { seedTransactions, seedWorks, seedPlans, seedTodayUpdates, collectKnownUsers } from "../data/mockData.js";
+import { seedCameras, seedCctvAlerts } from "../data/cctvData.js";
 
-const STORAGE_KEY = "nazir-agro-farm-app-v2";
+const STORAGE_KEY = "nazir-agro-farm-app-v3";
 
 function loadInitial() {
   try {
@@ -21,6 +22,8 @@ function loadInitial() {
     works: seedWorks(),
     plans: seedPlans(),
     todayUpdates: seedTodayUpdates(),
+    cameras: seedCameras(),
+    cctvAlerts: seedCctvAlerts(),
   };
 }
 
@@ -77,6 +80,21 @@ export function FarmStoreProvider({ children }) {
             plans: s.plans.map((p) => (p.id === planId ? { ...p, convertedToWorkId: work.id } : p)),
           };
         }),
+      retryCamera: (cameraId) =>
+        setState((s) => ({
+          ...s,
+          cameras: s.cameras.map((c) => (c.id === cameraId ? { ...c, status: "online", lastConnected: null } : c)),
+        })),
+      setCameraRecording: (cameraId, enabled) =>
+        setState((s) => ({
+          ...s,
+          cameras: s.cameras.map((c) => (c.id === cameraId ? { ...c, recordingEnabled: enabled } : c)),
+        })),
+      markAlertViewed: (alertId) =>
+        setState((s) => ({
+          ...s,
+          cctvAlerts: s.cctvAlerts.map((a) => (a.id === alertId ? { ...a, status: "viewed" } : a)),
+        })),
     }),
     []
   );
