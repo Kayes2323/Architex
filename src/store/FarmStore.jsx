@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { onAuthStateChanged, signInWithEmailAndPassword, signOut, updateProfile } from "firebase/auth";
+import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut, updateProfile } from "firebase/auth";
 import {
   collection,
   onSnapshot,
@@ -60,16 +60,16 @@ export function FarmStoreProvider({ children }) {
 
   const currentUser = firebaseUser ? firebaseUser.displayName || "" : "";
 
-  const login = async (email, password) => {
+  const loginWithGoogle = async () => {
     setAuthError("");
     try {
-      await signInWithEmailAndPassword(auth, email.trim(), password);
+      const result = await signInWithPopup(auth, new GoogleAuthProvider());
+      const u = result.user;
+      await setDoc(doc(db, "profiles", u.uid), { name: u.displayName || "", email: u.email }, { merge: true });
     } catch (err) {
-      setAuthError(
-        ["auth/invalid-credential", "auth/wrong-password", "auth/user-not-found", "auth/invalid-email"].includes(err.code)
-          ? "ইমেইল বা পাসওয়ার্ড ভুল হয়েছে"
-          : "লগইন করা যায়নি — আবার চেষ্টা করুন"
-      );
+      if (err.code !== "auth/popup-closed-by-user" && err.code !== "auth/cancelled-popup-request") {
+        setAuthError("লগইন করা যায়নি — আবার চেষ্টা করুন");
+      }
       throw err;
     }
   };
@@ -86,7 +86,7 @@ export function FarmStoreProvider({ children }) {
 
   const actions = useMemo(
     () => ({
-      login,
+      loginWithGoogle,
       logout,
       setDisplayName,
       addTransaction: (tx) => addDoc(collection(db, "transactions"), tx),
