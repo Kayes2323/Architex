@@ -12,16 +12,40 @@ const FUTURE_FEATURES = [
   { key: "reports", icon: "📊", label: "Advanced Reports", ready: false },
 ];
 
-export default function HomeScreen({ onOpenNewUpdate, onGoToHisab, onQuickAddPlan, onOpenCCTV }) {
-  const { transactions, works, todayUpdates, cameras, cctvAlerts } = useFarm();
+export default function HomeScreen({ onOpenNewUpdate, onGoToHisab, onQuickAddPlan, onOpenCCTV, onOpenAdmin }) {
+  const { transactions, works, todayUpdates, cameras, cctvAlerts, isAdmin, profiles } = useFarm();
   const summary = computeTodaySummary(transactions, works);
   const cctvSummary = computeCctvSummary(cameras, cctvAlerts);
+  const pendingCount = profiles.filter((p) => p.status === "pending").length;
 
   return (
     <div className="pb-24">
       <AppHeader subtitle={bnDate(new Date())} />
 
       <div className="px-4 -mt-1 flex flex-col gap-4 pt-4">
+        {isAdmin && (
+          <button
+            onClick={onOpenAdmin}
+            className="flex items-center gap-3 rounded-2xl border bg-white p-3.5 text-left shadow-card active:scale-[0.98] transition-transform"
+            style={{ borderColor: pendingCount > 0 ? "#f7c1bb" : "#eeece8" }}
+          >
+            <span className="text-2xl">🛡️</span>
+            <div className="flex-1">
+              <div className="text-sm font-bold" style={{ color: "#28241f" }}>
+                অ্যাডমিন প্যানেল
+              </div>
+              {pendingCount > 0 && (
+                <div className="mt-0.5 text-xs font-semibold" style={{ color: "#bd4038" }}>
+                  🔔 {toBnNumerals(pendingCount)}টি অনুমোদনের অপেক্ষায়
+                </div>
+              )}
+            </div>
+            <span className="rounded-full px-3 py-1.5 text-xs font-bold text-white" style={{ background: "#2f7d35" }}>
+              দেখুন →
+            </span>
+          </button>
+        )}
+
         <section>
           <div className="mb-2 flex items-center justify-between">
             <h2 className="text-sm font-bold" style={{ color: "#28241f" }}>

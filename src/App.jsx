@@ -4,6 +4,8 @@ import BottomNav from "./components/BottomNav.jsx";
 
 import LoginScreen from "./screens/LoginScreen.jsx";
 import SetNameScreen from "./screens/SetNameScreen.jsx";
+import PendingApprovalScreen from "./screens/PendingApprovalScreen.jsx";
+import AdminPanelScreen from "./admin/AdminPanelScreen.jsx";
 import HomeScreen from "./screens/HomeScreen.jsx";
 import AccountingScreen from "./screens/AccountingScreen.jsx";
 import ProjectDetailScreen from "./screens/ProjectDetailScreen.jsx";
@@ -27,12 +29,13 @@ export default function App() {
 }
 
 function AppShell() {
-  const { firebaseUser, currentUser } = useFarm();
+  const { firebaseUser, currentUser, isApproved } = useFarm();
   const [activeTab, setActiveTab] = useState("home");
   const [selectedWorkId, setSelectedWorkId] = useState(null);
   const [selectedProjectId, setSelectedProjectId] = useState(null);
   const [show3D, setShow3D] = useState(false);
   const [showCCTV, setShowCCTV] = useState(false);
+  const [showAdmin, setShowAdmin] = useState(false);
   const [sheet, setSheet] = useState(null); // { type, ...params }
 
   if (firebaseUser === undefined) {
@@ -44,6 +47,7 @@ function AppShell() {
   }
   if (!firebaseUser) return <LoginScreen />;
   if (!currentUser) return <SetNameScreen />;
+  if (!isApproved) return <PendingApprovalScreen />;
 
   const switchTab = (tab) => {
     setActiveTab(tab);
@@ -51,6 +55,7 @@ function AppShell() {
     setSelectedProjectId(null);
     setShow3D(false);
     setShowCCTV(false);
+    setShowAdmin(false);
   };
 
   const openWork = (workId) => {
@@ -65,6 +70,8 @@ function AppShell() {
       <div className="mx-auto min-h-full max-w-md" style={{ background: "#f2f6f1" }}>
         {showCCTV ? (
           <CCTVModule onExit={() => setShowCCTV(false)} />
+        ) : showAdmin ? (
+          <AdminPanelScreen onExit={() => setShowAdmin(false)} />
         ) : (
           <>
             {activeTab === "home" && (
@@ -73,6 +80,7 @@ function AppShell() {
                 onGoToHisab={() => switchTab("hisab")}
                 onQuickAddPlan={() => setSheet({ type: "newPlan" })}
                 onOpenCCTV={() => setShowCCTV(true)}
+                onOpenAdmin={() => setShowAdmin(true)}
               />
             )}
 

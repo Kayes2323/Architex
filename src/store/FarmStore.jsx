@@ -7,6 +7,7 @@ import {
   updateDoc,
   doc,
   setDoc,
+  getDoc,
   getDocs,
   arrayUnion,
   writeBatch,
@@ -14,6 +15,8 @@ import {
 import { auth, db } from "../firebase.js";
 import { collectKnownUsers } from "../data/mockData.js";
 import { seedCameras } from "../data/cctvData.js";
+
+export const ADMIN_EMAIL = "azizkayes2005@gmail.com";
 
 const FarmContext = createContext(null);
 
@@ -59,13 +62,26 @@ export function FarmStoreProvider({ children }) {
   }, []);
 
   const currentUser = firebaseUser ? firebaseUser.displayName || "" : "";
+  const isAdmin = firebaseUser ? firebaseUser.email === ADMIN_EMAIL : false;
+  const myProfile = firebaseUser ? profiles.find((p) => p.id === firebaseUser.uid) || null : null;
+  const isApproved = isAdmin || (myProfile ? myProfile.status === "approved" : false);
 
   const loginWithGoogle = async () => {
     setAuthError("");
     try {
       const result = await signInWithPopup(auth, new GoogleAuthProvider());
       const u = result.user;
-      await setDoc(doc(db, "profiles", u.uid), { name: u.displayName || "", email: u.email }, { merge: true });
+      const ref = doc(db, "profiles", u.uid);
+      const snap = await getDoc(ref);
+      if (!snap.exists()) {
+        await setDoc(ref, {
+          name: u.displayName || "",
+          email: u.email,
+          status: u.email === ADMIN_EMAIL ? "approved" : "pending",
+        });
+      } else {
+        await setDoc(ref, { name: u.displayName || "", email: u.email }, { merge: true });
+      }
     } catch (err) {
       if (err.code !== "auth/popup-closed-by-user" && err.code !== "auth/cancelled-popup-request") {
         setAuthError("লগইন করা যায়নি — আবার চেষ্টা করুন");
@@ -104,6 +120,8 @@ export function FarmStoreProvider({ children }) {
       retryCamera: (cameraId) => updateDoc(doc(db, "cameras", cameraId), { status: "online", lastConnected: null }),
       setCameraRecording: (cameraId, enabled) => updateDoc(doc(db, "cameras", cameraId), { recordingEnabled: enabled }),
       markAlertViewed: (alertId) => updateDoc(doc(db, "cctvAlerts", alertId), { status: "viewed" }),
+      approveUser: (uid) => updateDoc(doc(db, "profiles", uid), { status: "approved" }),
+      rejectUser: (uid) => updateDoc(doc(db, "profiles", uid), { status: "rejected" }),
     }),
     []
   );
@@ -117,6 +135,10 @@ export function FarmStoreProvider({ children }) {
     () => ({
       firebaseUser,
       currentUser,
+      isAdmin,
+      isApproved,
+      myProfile,
+      profiles,
       authError,
       transactions,
       works,
@@ -127,7 +149,23 @@ export function FarmStoreProvider({ children }) {
       knownUsers,
       ...actions,
     }),
-    [firebaseUser, currentUser, authError, transactions, works, plans, todayUpdates, cameras, cctvAlerts, knownUsers, actions]
+    [
+      firebaseUser,
+      currentUser,
+      isAdmin,
+      isApproved,
+      myProfile,
+      profiles,
+      authError,
+      transactions,
+      works,
+      plans,
+      todayUpdates,
+      cameras,
+      cctvAlerts,
+      knownUsers,
+      actions,
+    ]
   );
 
   return <FarmContext.Provider value={value}>{children}</FarmContext.Provider>;
