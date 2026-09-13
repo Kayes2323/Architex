@@ -1,106 +1,134 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { seedTransactions, seedWorks, seedPlans, seedTodayUpdates, collectKnownUsers } from "../data/mockData.js";
-import { seedCameras, seedCctvAlerts } from "../data/cctvData.js";
-
-const STORAGE_KEY = "nazir-agro-farm-app-v4";
-
-function loadInitial() {
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      const data = JSON.parse(raw);
-      if (data && data.transactions && data.works && data.plans && data.todayUpdates) {
-        return { currentUser: null, ...data };
-      }
-    }
-  } catch (err) {
-    /* ignore, fall back to seed data */
-  }
-  return {
-    currentUser: null,
-    transactions: seedTransactions(),
-    works: seedWorks(),
-    plans: seedPlans(),
-    todayUpdates: seedTodayUpdates(),
-    cameras: seedCameras(),
-    cctvAlerts: seedCctvAlerts(),
-  };
-}
-
-let idSeq = 1000;
-export function newId(prefix) {
-  idSeq += 1;
-  return `${prefix}_${idSeq}_${Date.now().toString(36)}`;
-}
+import { onAuthStateChanged, signInWithEmailAndPassword, signOut, updateProfile } from "firebase/auth";
+import {
+  collection,
+  onSnapshot,
+  addDoc,
+  updateDoc,
+  doc,
+  setDoc,
+  getDocs,
+  arrayUnion,
+  writeBatch,
+} from "firebase/firestore";
+import { auth, db } from "../firebase.js";
+import { collectKnownUsers } from "../data/mockData.js";
+import { seedCameras } from "../data/cctvData.js";
 
 const FarmContext = createContext(null);
 
-export function FarmStoreProvider({ children }) {
-  const [state, setState] = useState(loadInitial);
-
+function useLiveCollection(name) {
+  const [items, setItems] = useState([]);
   useEffect(() => {
+    const unsub = onSnapshot(collection(db, name), (snap) => {
+      setItems(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+    });
+    return unsub;
+  }, [name]);
+  return items;
+}
+
+export function FarmStoreProvider({ children }) {
+  // undefined = auth state still loading, null = signed out, object = signed in
+  const [firebaseUser, setFirebaseUser] = useState(undefined);
+  const [authError, setAuthError] = useState("");
+
+  useEffect(() => onAuthStateChanged(auth, (u) => setFirebaseUser(u)), []);
+
+  const transactions = useLiveCollection("transactions");
+  const works = useLiveCollection("works");
+  const plans = useLiveCollection("plans");
+  const todayUpdates = useLiveCollection("todayUpdates");
+  const cameras = useLiveCollection("cameras");
+  const cctvAlerts = useLiveCollection("cctvAlerts");
+  const profiles = useLiveCollection("profiles");
+
+  // ফার্মের ৫টি নির্দিষ্ট ক্যামেরা/zone — Firestore-এ একবারই সেভ হবে, যদি খালি থাকে।
+  useEffect(() => {
+    (async () => {
+      const snap = await getDocs(collection(db, "cameras"));
+      if (snap.empty) {
+        const batch = writeBatch(db);
+        seedCameras().forEach((cam) => {
+          const { id, ...rest } = cam;
+          batch.set(doc(db, "cameras", id), rest);
+        });
+        await batch.commit();
+      }
+    })();
+  }, []);
+
+  const currentUser = firebaseUser ? firebaseUser.displayName || "" : "";
+
+  const login = async (email, password) => {
+    setAuthError("");
     try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      await signInWithEmailAndPassword(auth, email.trim(), password);
     } catch (err) {
-      /* storage unavailable — prototype still works in-memory */
+      setAuthError(
+        ["auth/invalid-credential", "auth/wrong-password", "auth/user-not-found", "auth/invalid-email"].includes(err.code)
+          ? "ইমেইল বা পাসওয়ার্ড ভুল হয়েছে"
+          : "লগইন করা যায়নি — আবার চেষ্টা করুন"
+      );
+      throw err;
     }
-  }, [state]);
+  };
+
+  const logout = () => signOut(auth);
+
+  const setDisplayName = async (name) => {
+    if (!auth.currentUser) return;
+    const trimmed = name.trim();
+    await updateProfile(auth.currentUser, { displayName: trimmed });
+    await setDoc(doc(db, "profiles", auth.currentUser.uid), { name: trimmed, email: auth.currentUser.email }, { merge: true });
+    setFirebaseUser({ ...auth.currentUser });
+  };
 
   const actions = useMemo(
     () => ({
-      login: (name) => setState((s) => ({ ...s, currentUser: name.trim() })),
-      setCurrentUser: (name) => setState((s) => ({ ...s, currentUser: name.trim() })),
-      addTransaction: (tx) =>
-        setState((s) => ({ ...s, transactions: [{ ...tx, id: newId("t") }, ...s.transactions] })),
-      addPlan: (plan) =>
-        setState((s) => ({
-          ...s,
-          plans: [{ ...plan, id: newId("p"), comments: [], convertedToWorkId: null }, ...s.plans],
-        })),
+      login,
+      logout,
+      setDisplayName,
+      addTransaction: (tx) => addDoc(collection(db, "transactions"), tx),
+      addPlan: (plan) => addDoc(collection(db, "plans"), { ...plan, comments: [], convertedToWorkId: null }),
       addComment: (planId, comment) =>
-        setState((s) => ({
-          ...s,
-          plans: s.plans.map((p) =>
-            p.id === planId ? { ...p, comments: [...p.comments, { ...comment, id: newId("c") }] } : p
-          ),
-        })),
-      addTodayUpdate: (update) =>
-        setState((s) => ({ ...s, todayUpdates: [{ ...update, id: newId("u") }, ...s.todayUpdates] })),
-      updateWorkProgress: (workId, patch) =>
-        setState((s) => ({
-          ...s,
-          works: s.works.map((w) => (w.id === workId ? { ...w, ...patch } : w)),
-        })),
-      convertPlanToWork: (planId, workDraft) =>
-        setState((s) => {
-          const work = { ...workDraft, id: newId("w") };
-          return {
-            ...s,
-            works: [work, ...s.works],
-            plans: s.plans.map((p) => (p.id === planId ? { ...p, convertedToWorkId: work.id } : p)),
-          };
+        updateDoc(doc(db, "plans", planId), {
+          comments: arrayUnion({ ...comment, id: `${Date.now()}_${Math.random().toString(36).slice(2)}` }),
         }),
-      retryCamera: (cameraId) =>
-        setState((s) => ({
-          ...s,
-          cameras: s.cameras.map((c) => (c.id === cameraId ? { ...c, status: "online", lastConnected: null } : c)),
-        })),
-      setCameraRecording: (cameraId, enabled) =>
-        setState((s) => ({
-          ...s,
-          cameras: s.cameras.map((c) => (c.id === cameraId ? { ...c, recordingEnabled: enabled } : c)),
-        })),
-      markAlertViewed: (alertId) =>
-        setState((s) => ({
-          ...s,
-          cctvAlerts: s.cctvAlerts.map((a) => (a.id === alertId ? { ...a, status: "viewed" } : a)),
-        })),
+      addTodayUpdate: (update) => addDoc(collection(db, "todayUpdates"), update),
+      updateWorkProgress: (workId, patch) => updateDoc(doc(db, "works", workId), patch),
+      convertPlanToWork: async (planId, workDraft) => {
+        const ref = await addDoc(collection(db, "works"), workDraft);
+        await updateDoc(doc(db, "plans", planId), { convertedToWorkId: ref.id });
+      },
+      retryCamera: (cameraId) => updateDoc(doc(db, "cameras", cameraId), { status: "online", lastConnected: null }),
+      setCameraRecording: (cameraId, enabled) => updateDoc(doc(db, "cameras", cameraId), { recordingEnabled: enabled }),
+      markAlertViewed: (alertId) => updateDoc(doc(db, "cctvAlerts", alertId), { status: "viewed" }),
     }),
     []
   );
 
-  const knownUsers = useMemo(() => collectKnownUsers(state), [state]);
-  const value = useMemo(() => ({ ...state, knownUsers, ...actions }), [state, knownUsers, actions]);
+  const knownUsers = useMemo(
+    () => collectKnownUsers({ currentUser, transactions, works, plans, todayUpdates, profiles }),
+    [currentUser, transactions, works, plans, todayUpdates, profiles]
+  );
+
+  const value = useMemo(
+    () => ({
+      firebaseUser,
+      currentUser,
+      authError,
+      transactions,
+      works,
+      plans,
+      todayUpdates,
+      cameras,
+      cctvAlerts,
+      knownUsers,
+      ...actions,
+    }),
+    [firebaseUser, currentUser, authError, transactions, works, plans, todayUpdates, cameras, cctvAlerts, knownUsers, actions]
+  );
 
   return <FarmContext.Provider value={value}>{children}</FarmContext.Provider>;
 }

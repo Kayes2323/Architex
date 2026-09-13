@@ -8,7 +8,7 @@ import { useFarm } from "../store/FarmStore.jsx";
 import { relativeBnTime } from "../data/mockData.js";
 
 export default function PlanScreen({ onNewPlan, onOpen3D, onOpenWork, onConvertToWork }) {
-  const { plans, currentUser, setCurrentUser, addComment } = useFarm();
+  const { plans, currentUser, setDisplayName, logout, addComment } = useFarm();
   const [query, setQuery] = useState("");
   const [renaming, setRenaming] = useState(false);
 
@@ -44,7 +44,7 @@ export default function PlanScreen({ onNewPlan, onOpen3D, onOpenWork, onConvertT
       />
 
       {renaming && (
-        <RenameSheet currentUser={currentUser} onSave={setCurrentUser} onClose={() => setRenaming(false)} />
+        <RenameSheet currentUser={currentUser} onSave={setDisplayName} onLogout={logout} onClose={() => setRenaming(false)} />
       )}
 
       <div className="px-4 pt-4 flex flex-col gap-4">
@@ -101,7 +101,7 @@ export default function PlanScreen({ onNewPlan, onOpen3D, onOpenWork, onConvertT
   );
 }
 
-function RenameSheet({ currentUser, onSave, onClose }) {
+function RenameSheet({ currentUser, onSave, onLogout, onClose }) {
   const [name, setName] = useState(currentUser);
   const save = () => {
     if (!name.trim()) return;
@@ -110,7 +110,7 @@ function RenameSheet({ currentUser, onSave, onClose }) {
   };
   return (
     <Sheet
-      title="👤 আপনার নাম"
+      title="👤 আপনার প্রোফাইল"
       onClose={onClose}
       footer={
         <PrimaryButton onClick={save} disabled={!name.trim()}>
@@ -127,6 +127,13 @@ function RenameSheet({ currentUser, onSave, onClose }) {
           style={inputStyle}
         />
       </Field>
+      <button
+        onClick={onLogout}
+        className="mt-2 w-full rounded-xl border py-2.5 text-sm font-bold active:scale-[0.98] transition-transform"
+        style={{ borderColor: "#f7c1bb", color: "#bd4038" }}
+      >
+        🚪 লগ আউট
+      </button>
     </Sheet>
   );
 }

@@ -3,6 +3,7 @@ import { FarmStoreProvider, useFarm } from "./store/FarmStore.jsx";
 import BottomNav from "./components/BottomNav.jsx";
 
 import LoginScreen from "./screens/LoginScreen.jsx";
+import SetNameScreen from "./screens/SetNameScreen.jsx";
 import HomeScreen from "./screens/HomeScreen.jsx";
 import AccountingScreen from "./screens/AccountingScreen.jsx";
 import ProjectDetailScreen from "./screens/ProjectDetailScreen.jsx";
@@ -26,7 +27,7 @@ export default function App() {
 }
 
 function AppShell() {
-  const { currentUser } = useFarm();
+  const { firebaseUser, currentUser } = useFarm();
   const [activeTab, setActiveTab] = useState("home");
   const [selectedWorkId, setSelectedWorkId] = useState(null);
   const [selectedProjectId, setSelectedProjectId] = useState(null);
@@ -34,7 +35,15 @@ function AppShell() {
   const [showCCTV, setShowCCTV] = useState(false);
   const [sheet, setSheet] = useState(null); // { type, ...params }
 
-  if (!currentUser) return <LoginScreen />;
+  if (firebaseUser === undefined) {
+    return (
+      <div className="flex min-h-screen items-center justify-center" style={{ background: "#f2f6f1" }}>
+        <div className="text-3xl">🌱</div>
+      </div>
+    );
+  }
+  if (!firebaseUser) return <LoginScreen />;
+  if (!currentUser) return <SetNameScreen />;
 
   const switchTab = (tab) => {
     setActiveTab(tab);

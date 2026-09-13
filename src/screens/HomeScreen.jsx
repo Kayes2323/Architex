@@ -1,7 +1,7 @@
 import { AppHeader } from "../components/TopHeader.jsx";
 import Card from "../components/Card.jsx";
 import { useFarm } from "../store/FarmStore.jsx";
-import { computeTodaySummary, formatTaka, bnDate, toBnNumerals, TODAY_ISO } from "../data/mockData.js";
+import { computeTodaySummary, formatTaka, bnDate, toBnNumerals } from "../data/mockData.js";
 import { computeCctvSummary } from "../data/cctvData.js";
 
 const FUTURE_FEATURES = [
@@ -19,7 +19,7 @@ export default function HomeScreen({ onOpenNewUpdate, onGoToHisab, onQuickAddPla
 
   return (
     <div className="pb-24">
-      <AppHeader subtitle={bnDate(TODAY_ISO)} />
+      <AppHeader subtitle={bnDate(new Date())} />
 
       <div className="px-4 -mt-1 flex flex-col gap-4 pt-4">
         <section>

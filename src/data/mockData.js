@@ -25,23 +25,11 @@ export function purposeKind(purpose) {
   return INVESTMENT_PURPOSES.includes(purpose) ? "investment" : "expense";
 }
 
-// প্রোটোটাইপে "আজ" হিসেবে এই তারিখটা ব্যবহার হবে, যাতে ডেমো ডেটা সবসময় অর্থবহ থাকে।
-export const TODAY_ISO = "2026-09-12";
-
-export function seedTransactions() {
-  return [];
-}
-
-export function seedWorks() {
-  return [];
-}
-
-export function seedPlans() {
-  return [];
-}
-
-export function seedTodayUpdates() {
-  return [];
+export function todayIso() {
+  const d = new Date();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${d.getFullYear()}-${m}-${day}`;
 }
 
 const bnDigits = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
@@ -89,8 +77,9 @@ export function relativeBnTime(iso) {
 }
 
 export function computeTodaySummary(transactions, works) {
+  const today = todayIso();
   const expenseToday = transactions
-    .filter((t) => t.date === TODAY_ISO)
+    .filter((t) => t.date === today)
     .reduce((sum, t) => sum + Number(t.amount || 0), 0);
   const running = works.filter((w) => w.status === "running").length;
   const doneToday = works.filter((w) => w.status === "done").length;
@@ -123,15 +112,16 @@ export function projectById(id) {
   return PROJECT_TYPES.find((p) => p.id === id) || PROJECT_TYPES[PROJECT_TYPES.length - 1];
 }
 
-// কোনো hardcoded "বাবা/চাচা" লিস্ট নেই — যারা লগ ইন করেছে বা যাদের নাম কোথাও
-// ব্যবহার হয়েছে (হিসাব, কাজ, পরিকল্পনা), তাদের নাম থেকেই এই লিস্ট তৈরি হয়।
-export function collectKnownUsers({ currentUser, transactions = [], works = [], plans = [], todayUpdates = [] }) {
+// কোনো hardcoded "বাবা/চাচা" লিস্ট নেই — যারা লগ ইন করেছে (profiles) বা যাদের নাম
+// কোথাও ব্যবহার হয়েছে (হিসাব, কাজ, পরিকল্পনা), তাদের নাম থেকেই এই লিস্ট তৈরি হয়।
+export function collectKnownUsers({ currentUser, transactions = [], works = [], plans = [], todayUpdates = [], profiles = [] }) {
   const names = [];
   const add = (n) => {
     const trimmed = (n || "").trim();
     if (trimmed && !names.includes(trimmed)) names.push(trimmed);
   };
   add(currentUser);
+  profiles.forEach((p) => add(p.name));
   transactions.forEach((t) => add(t.paidBy));
   works.forEach((w) => add(w.responsible));
   plans.forEach((p) => {

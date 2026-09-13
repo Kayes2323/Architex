@@ -1,0 +1,10 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // পরিবারের যে কেউ লগইন করা থাকলে সব ডেটা পড়তে/লিখতে পারবে।
+    // লগইন ছাড়া কেউ কিছু দেখতে বা বদলাতে পারবে না।
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}

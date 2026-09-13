@@ -2,7 +2,7 @@ import { useState } from "react";
 import Sheet, { Field, inputClass, inputStyle, ChipSelect, PrimaryButton } from "../../components/Sheet.jsx";
 import PersonPicker from "../../components/PersonPicker.jsx";
 import { useFarm } from "../../store/FarmStore.jsx";
-import { EXPENSE_PURPOSES, TODAY_ISO, projectById } from "../../data/mockData.js";
+import { EXPENSE_PURPOSES, todayIso, projectById } from "../../data/mockData.js";
 
 export default function NewExpenseSheet({ projectId, onClose, onSaved }) {
   const { currentUser, knownUsers, addTransaction } = useFarm();
@@ -24,7 +24,7 @@ export default function NewExpenseSheet({ projectId, onClose, onSaved }) {
       paidBy: paidBy.trim(),
       paidTo: paidTo.trim(),
       paid,
-      date: TODAY_ISO,
+      date: todayIso(),
     });
     onSaved && onSaved();
     onClose();

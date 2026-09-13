@@ -63,10 +63,6 @@ export function seedCameras() {
   ];
 }
 
-export function seedCctvAlerts() {
-  return [];
-}
-
 export const RECORDING_DATES = [
   { key: "today", label: "আজ" },
   { key: "d1", label: "১১ সেপ্টেম্বর" },

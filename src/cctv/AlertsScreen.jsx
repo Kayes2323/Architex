@@ -5,7 +5,7 @@ import EmptyState from "../components/EmptyState.jsx";
 import Sheet, { PrimaryButton } from "../components/Sheet.jsx";
 import { useFarm } from "../store/FarmStore.jsx";
 import { cameraById, bnClock } from "../data/cctvData.js";
-import { bnDate, TODAY_ISO } from "../data/mockData.js";
+import { bnDate } from "../data/mockData.js";
 
 export default function AlertsScreen({ onBack, onOpenCamera, onOpenRecording }) {
   const { cameras, cctvAlerts, markAlertViewed } = useFarm();
@@ -66,7 +66,7 @@ export default function AlertsScreen({ onBack, onOpenCamera, onOpenRecording }) 
           <div className="mb-4 flex flex-col gap-2 text-sm" style={{ color: "#3d3830" }}>
             <Row label="ক্যামেরা" value={selectedCam ? `${selectedCam.icon} ${selectedCam.name}` : "—"} />
             <Row label="সময়" value={bnClock(selected.time.h, selected.time.m)} />
-            <Row label="তারিখ" value={bnDate(TODAY_ISO)} />
+            <Row label="তারিখ" value={bnDate(new Date())} />
             <Row label="Status" value={selected.status === "new" ? "নতুন" : "দেখা হয়েছে"} />
           </div>
           <div className="flex flex-col gap-2">
