@@ -61,7 +61,8 @@ export default function ProjectDetailScreen({ projectId, onBack, onAddExpense })
                           {t.purpose}
                         </div>
                         <div className="mt-0.5 text-xs" style={{ color: "#867a65" }}>
-                          {t.paidBy} দিয়েছেন · {t.paidTo}কে · {bnDate(t.date)}
+                          {t.notPaidYet ? "⏳ টাকা এখনো দেওয়া হয়নি" : `${t.paidBy} দিয়েছেন · ${t.paidTo}কে`} ·{" "}
+                          {bnDate(t.date)}
                         </div>
                       </div>
                       <div className="text-right">
